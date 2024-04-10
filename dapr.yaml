@@ -1,0 +1,7 @@
+version: 1
+common:
+  resourcesPath: components
+apps:
+  - appDirPath: ./cmd
+    appID: onboarding-process
+    command: ["go", "run", "."]
