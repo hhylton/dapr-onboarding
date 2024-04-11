@@ -15,7 +15,7 @@ import (
 var (
 	onboardingStateStoreName    = "statestore"
 	onboardingWorkflowComponent = "dapr"
-	onboardingWorkflowName      = "OnboardingProcessWorkflow"
+	onboardingWorkflowName      = "ProcessWorkflow"
 	onboardingDefaultName       = "TestOrg01"
 )
 
@@ -40,22 +40,22 @@ func OnboardNewOrganization() {
 	fmt.Println("*** Completed initialising the Dapr Worker Client.")
 
 	fmt.Println("*** Using the worker to register workflow activities (RegisterWorkflow adds a workflow function to the registry).")
-	if err := w.RegisterWorkflow(OnboardingProcessWorkflow); err != nil {
+	if err := w.RegisterWorkflow(ProcessWorkflow); err != nil {
 		log.Fatal(err)
 	}
-	if err := w.RegisterActivity(OnboardingNotifyActivity); err != nil {
+	if err := w.RegisterActivity(NotifyActivity); err != nil {
 		log.Fatal(err)
 	}
-	if err := w.RegisterActivity(OnboardingRequestApprovalActivity); err != nil {
+	if err := w.RegisterActivity(RequestApprovalActivity); err != nil {
 		log.Fatal(err)
 	}
-	if err := w.RegisterActivity(OnboardingVerifyOnboardingActivity); err != nil {
+	if err := w.RegisterActivity(VerifyOnboardingActivity); err != nil {
 		log.Fatal(err)
 	}
 	if err := w.RegisterActivity(ProcessAddUserActivity); err != nil {
 		log.Fatal(err)
 	}
-	if err := w.RegisterActivity(OnboardingUpdateOnboardingActivity); err != nil {
+	if err := w.RegisterActivity(UpdateOnboardingActivity); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("*** Completed registering workflow activities.")

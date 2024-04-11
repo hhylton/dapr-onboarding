@@ -12,13 +12,13 @@ import (
 	"github.com/dapr/go-sdk/workflow"
 )
 
-// OnboardingNotifyActivity outputs a notification message
-func OnboardingNotifyActivity(ctx workflow.ActivityContext) (any, error) {
+// NotifyActivity outputs a notification message
+func NotifyActivity(ctx workflow.ActivityContext) (any, error) {
 	var input models.Notification
 	if err := ctx.GetInput(&input); err != nil {
 		return "", err
 	}
-	fmt.Printf("OnboardingNotifyActivity: %s\n", input.Message)
+	fmt.Printf("NotifyActivity: %s\n", input.Message)
 	return nil, nil
 }
 
@@ -30,18 +30,18 @@ func ProcessAddUserActivity(ctx workflow.ActivityContext) (any, error) {
 		return "", err
 	}
 
-	fmt.Printf("ProcessAddUserActivity: %s for %s with %d users\n", input.RequestID, input.ItemBeingProcessed, input.NumOfUsers)
+	fmt.Printf("ProcessAddUserActivity: Processing request %s adding %d users to organization %s\n", input.RequestID, input.NumOfUsers, input.ItemBeingProcessed)
 	return nil, nil
 }
 
-// OnboardingVerifyOnboardingActivity is used to verify if an onboarding request has been scheduled
-func OnboardingVerifyOnboardingActivity(ctx workflow.ActivityContext) (any, error) {
+// VerifyOnboardingActivity is used to verify if an onboarding request has been scheduled
+func VerifyOnboardingActivity(ctx workflow.ActivityContext) (any, error) {
 	var input models.WorkflowRequest
 	if err := ctx.GetInput(&input); err != nil {
 		return nil, err
 	}
 
-	fmt.Printf("OnboardingVerifyOnboardingActivity: Verifying request for %s onboarding %s with %d users\n", input.RequestID, input.RequestName, input.NumOfUsers)
+	fmt.Printf("VerifyOnboardingActivity: Verifying request for %s onboarding %s with %d users\n", input.RequestID, input.RequestName, input.NumOfUsers)
 	dClient, err := client.NewClient()
 	if err != nil {
 		return nil, err
@@ -63,20 +63,20 @@ func OnboardingVerifyOnboardingActivity(ctx workflow.ActivityContext) (any, erro
 	if err := json.Unmarshal(item.Value, &result); err != nil {
 		log.Fatalf("failed to parse workflow result %v", err)
 	}
-	fmt.Printf("OnboardingVerifyOnboardingActivity: The onboarding request for %s with %d user/s is ready for processing\n", result.ItemName, result.NumOfUsers)
+	fmt.Printf("VerifyOnboardingActivity: The onboarding request for %s with %d user/s is ready for processing\n", result.ItemName, result.NumOfUsers)
 	if result.NumOfUsers >= input.NumOfUsers {
 		return models.WorkflowResult{Success: true, WorkflowItem: result}, nil
 	}
 	return models.WorkflowResult{Success: false, WorkflowItem: models.WorkflowItem{}}, nil
 }
 
-// OnboardingUpdateOnboardingActivity modifies the workflow logs.
-func OnboardingUpdateOnboardingActivity(ctx workflow.ActivityContext) (any, error) {
+// UpdateOnboardingActivity modifies the workflow logs.
+func UpdateOnboardingActivity(ctx workflow.ActivityContext) (any, error) {
 	var input models.OnboardingRequest
 	if err := ctx.GetInput(&input); err != nil {
 		return nil, err
 	}
-	fmt.Printf("OnboardingUpdateOnboardingActivity: Checking Request for onboarding %s - %s with %d user/s\n", input.RequestID, input.ItemBeingProcessed, input.NumOfUsers)
+	fmt.Printf("UpdateOnboardingActivity: Checking Request %s for onboarding %s with %d user/s\n", input.RequestID, input.ItemBeingProcessed, input.NumOfUsers)
 	dClient, err := client.NewClient()
 	if err != nil {
 		return nil, err
@@ -102,12 +102,12 @@ func OnboardingUpdateOnboardingActivity(ctx workflow.ActivityContext) (any, erro
 		log.Fatalf("failed to marshal new state: %v", err)
 	}
 	dClient.SaveState(context.Background(), onboardingStateStoreName, input.ItemBeingProcessed, newState, nil)
-	fmt.Printf("OnboardingUpdateOnboardingActivity: New organization %s with %d user/s have been processed\n", result.ItemName, result.NumOfUsers)
+	fmt.Printf("UpdateOnboardingActivity: The request for new organization %s with %d user/s have been successfully validated\n", result.ItemName, result.NumOfUsers)
 	return models.WorkflowResult{Success: true, WorkflowItem: result}, nil
 }
 
 // RequestApprovalActivity requests approval for the order
-func OnboardingRequestApprovalActivity(ctx workflow.ActivityContext) (any, error) {
+func RequestApprovalActivity(ctx workflow.ActivityContext) (any, error) {
 	var input models.OnboardingPayload
 	if err := ctx.GetInput(&input); err != nil {
 		return nil, err
